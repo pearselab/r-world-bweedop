@@ -24,9 +24,7 @@ diamond.step<-function(terra){
   x<-c(ne,sw,se,nw)
   # average the corners with a little bit of noise added.
   mid<-mean(x)+rnorm(1,1,1)
- for(i in 1:5){
-  terra[mean(1:(nrow(terra))/i),mean((1:(ncol(terra))/i))]<-mid
-}
+  terra[mean(1:nrow(terra)),mean(1:ncol(terra))]<-mid
   return(terra)
 }
 terra<-diamond.step(terra)
