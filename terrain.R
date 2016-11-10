@@ -24,6 +24,7 @@ diamond.step<-function(terra){
 }
 
 terra<-diamond.step(terra)
+terra[3:5,3:5]<-diamond.step(terra[3:5,3:5])
 
 square.step<-function(terra){
   bar<-ceiling(ncol(terra)/2)
@@ -48,9 +49,16 @@ square.step<-function(terra){
 
 
 diamond_square.step<-function(terra){
-  terra<-world.dim(2,100,10)
+  world.dim(2,100,10)
+  return(terra)
+  for(i in 1:nrow(terra)){
+  diamond.step(terra)
+  terra[3:5,3:5]<-diamond.step(terra[3:5,3:5])
+  terra[1:3,1:3]<-diamond.step(terra[1:3,1:3])
+  terra[3:5,1:3]<-diamond.step(terra[3:5,1:3])
+  terra[1:3,3:5]<-diamond.step(terra[1:3,3:5])
   
-  terra<-diamond.step(terra)
-  
-  terra<-square.step(terra)
+  square.step(terra)
+  terra[3:5,3:5]<-square.step(terra[3:5,3:5])
 }
+terra[1:3,1:3]<-diamond_square.step(terra[1:3,1:3])
