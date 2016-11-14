@@ -10,7 +10,6 @@ world.dim<-function(dim,ele,var){
   # inserting a sample of the random values generated.
   return(my.world)
 }
-terra<-world.dim(3,5,5)
 
 diamond.step<-function(terra){
   bar<-ceiling(ncol(terra)/2)
@@ -46,7 +45,7 @@ square.step<-function(terra){
 }
 
 
-diamond.square.step <- function(terra, lakes){
+diamond.square.step <- function(terra){
 x<-as.integer(log2(ncol(terra)))
   for (i in 2^(x:1)){ 
     for (n.s in seq(1, ncol(terra)-1, by=i)) {  
@@ -56,12 +55,17 @@ x<-as.integer(log2(ncol(terra)))
       }
     }
   }
-if(lakes==TRUE){
-terra[terra<0]<-NA
-}
 return(terra)
 }
-terra<-diamond.square.step(terra,TRUE)
+terra<-diamond.square.step(terra)
 
-
+terrain.wrapper<-function(terra, lakes){
+  terra<-world.dim(3,5,5)
+  terra<-diamond.square.step(terra)
+  if(lakes==TRUE){
+    terra[terra<0]<-NA
+  }
+  return(terra)
+}
+terra<-terrain.wrapper(terra, TRUE)
 
