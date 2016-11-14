@@ -10,21 +10,19 @@ world.dim<-function(dim,ele,var){
   # inserting a sample of the random values generated.
   return(my.world)
 }
-  
+terra<-world.dim(3,5,5)
 
 diamond.step<-function(terra){
   bar<-ceiling(ncol(terra)/2)
   
-  # concatenate the corners.
-  x<-mean(terra[c(1,(nrow(terra))),c(1,(ncol(terra)))])+rnorm(1,1,1)
+  #' concatenate the corners.
+  x<-mean(terra[c(1,(nrow(terra))),c(1,(ncol(terra)))])+rnorm(1)
   
-  # average the corners with a little bit of noise added.
+  #'average the corners with a little bit of noise added.
   terra[bar,bar]<-x
   return(terra)
 }
 
-terra<-diamond.step(terra)
-terra[3:5,3:5]<-diamond.step(terra[3:5,3:5])
 
 square.step<-function(terra){
   bar<-ceiling(ncol(terra)/2)
@@ -35,10 +33,10 @@ square.step<-function(terra){
   sw<-terra[nrow(terra),ncol(terra)]
   nw<-terra[1,ncol(terra)]
   
-  e.mean<-mean(c(ne,se,center))+rnorm(1,1,1)
-  s.mean<-mean(c(se,sw,center))+rnorm(1,1,1)
-  w.mean<-mean(c(se,nw,center))+rnorm(1,1,1)
-  n.mean<-mean(c(ne,nw,center))+rnorm(1,1,1)
+  e.mean<-mean(c(ne,se,center))+rnorm(1)
+  s.mean<-mean(c(se,sw,center))+rnorm(1)
+  w.mean<-mean(c(se,nw,center))+rnorm(1)
+  n.mean<-mean(c(ne,nw,center))+rnorm(1)
   
   terra[mean(1:nrow(terra)),1]<-e.mean
   terra[max(1:nrow(terra)),mean(1:ncol(terra))]<-s.mean
@@ -48,17 +46,22 @@ square.step<-function(terra){
 }
 
 
-diamond_square.step<-function(terra){
-  world.dim(2,100,10)
-  return(terra)
-  for(i in 1:nrow(terra)){
-  diamond.step(terra)
-  terra[3:5,3:5]<-diamond.step(terra[3:5,3:5])
-  terra[1:3,1:3]<-diamond.step(terra[1:3,1:3])
-  terra[3:5,1:3]<-diamond.step(terra[3:5,1:3])
-  terra[1:3,3:5]<-diamond.step(terra[1:3,3:5])
-  
-  square.step(terra)
-  terra[3:5,3:5]<-square.step(terra[3:5,3:5])
+diamond.square.step <- function(terra, lakes){
+x<-as.integer(log2(ncol(terra)))
+  for (i in 2^(x:1)){ 
+    for (n.s in seq(1, ncol(terra)-1, by=i)) {  
+      for (w.e in seq(1, nrow(terra)-1, by=i)) {
+        terra[w.e:(w.e+i),n.s:(n.s+i)] <- diamond.step(terra[w.e:(w.e+i),n.s:(n.s+i)])
+        terra[w.e:(w.e+i),n.s:(n.s+i)] <- square.step(terra[w.e:(w.e+i),n.s:(n.s+i)])
+      }
+    }
+  }
+if(lakes==TRUE){
+terra[terra<0]<-NA
 }
-terra[1:3,1:3]<-diamond_square.step(terra[1:3,1:3])
+return(terra)
+}
+terra<-diamond.square.step(terra,TRUE)
+
+
+
