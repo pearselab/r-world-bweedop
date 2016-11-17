@@ -78,6 +78,7 @@ plant.timestep <- function(plants, info){
       plants[j,i]<-survive(plants[j,i], info)
     }
   }
+  plants <- reproduce(row, column, plants, info)
   return(plants)
 }
 #' @param terra argument to call the terrain matrix 'terra'
@@ -101,8 +102,8 @@ plants<-run.eco(terra, 10)
 
 ###CODE ABOVE THIS POINT ALL WORKS
 
-fight<-function(info){
-  win<-sample(species_names, 1, prob=comp.mat[row,column])
+fight<-function(prob, info){
+  win<-sample(names, 1, prob=comp.mat[row,column])
   return(win)
 }
 
@@ -111,12 +112,19 @@ reproduce <- function(row, col, plants, info){
   if(is.na(possible.locations)==TRUE){
     possible.locations<-NA
   }
-  if (possible.locations= 'a'| possible.locations= 'b'){
-    possible.locations<-fight(possible)
+  if (possible.locations== 'a'| possible.locations== 'b'){
+    possible.locations<-fight(possible.locations)
   }
-  
-  
-  
-  return(plants)
+  if(cell==''){
+    for(i in sample(length(info$survive))){
+      if(runif(1) <= info$survive[i]){
+        possible.locations<-names(info$survive[i])
+      }
+    }
+  }
+  return(possible.locations)
 }
+
+unbalanced <- run.plant.ecosystem(terrain, 100, survive=c(.95,.95),
+                                  repro=c(.4, .6), comp.mat=matrix(c(.7,.3,.3,.7),2))
 
