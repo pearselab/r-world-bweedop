@@ -1,0 +1,10 @@
+Package: r.world
+Type: Package
+Title: R World Package
+Version: 0.1.0
+Author: K. Bodie Weedop
+Maintainer: <dontbotherme@getoffmylawn.net>
+Description: Creates a beautiful terrain with pretty plants.
+License: GPL-3
+LazyData: TRUE
+RoxygenNote: 5.0.1
