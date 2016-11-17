@@ -115,7 +115,7 @@ reproduce <- function(row, col, plants, info){
   if (possible.locations== 'a'| possible.locations== 'b'){
     possible.locations<-fight(possible.locations)
   }
-  if(cell==''){
+  if(possible.locations==''){
     for(i in sample(length(info$survive))){
       if(runif(1) <= info$survive[i]){
         possible.locations<-names(info$survive[i])
