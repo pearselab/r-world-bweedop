@@ -1,20 +1,23 @@
-
 #' @title Inserts plant species into the terrain matrix.
 #'
 #' @description Simulation of plant species placed on the terrain matrix
-#' built in 'terrain.r'. Where there is terrain, the plant species 
-#' initially survive, then reproduce, and eventually compete with each 
-#' other. 
-#' @param repduc the probability that the corresponding plant species 
+#' built in 'terrain.r'. Where there is terrain, the plant species
+#' initially survive, then reproduce, and eventually compete with each
+#' other.
+#' @param repduc the probability that the corresponding plant species
 #' reproduces.
-#' @param survive the probability that the corresponding plant species 
+#' @param survive the probability that the corresponding plant species
 #' survives.
 #' @param comp.mat contains the competition parameters for the species
 #' simulated.
 #' @return initiate.plants objects
 #' @importFrom stats rnorm
 #' @examples
-#'    plants<-run.eco(terra, 10)
+#' repduc<-c(0.6,0.4)
+#' survive<-c(0.6,0.5)
+#' comp.mat<-matrix(nrow = length(repduc),ncol = length(survive))
+#' info<-initiate.plants(repduc,survive,comp.mat)
+#' plants<-run.eco(terra, 10)
 #' @name plant.arr
 #' @rdname plant.arr
 #'
@@ -27,6 +30,10 @@ initiate.plants<-function(repduc, survive,comp.mat, names=NULL){
     stop("Reproduction and survival parameters needed for all species")
     # stop the fxn and return error if the length of the two arguments
     #are not equivalent.
+  if (repduc<=0|repduc>=1)
+    stop('Invalid reproduction probability')
+  if (survive<=0|survive>=1)
+    stop('Invalid survival probability')
   if(is.matrix(comp.mat)==F)
     stop("The competition is not a matrix")
   repduc <- setNames(repduc, names)
@@ -35,24 +42,19 @@ initiate.plants<-function(repduc, survive,comp.mat, names=NULL){
     # set the values of repduc to the corresponding logical value of names.
   return(list(repduc=repduc, survive=survive, comp.mat=comp.mat,
               names=names))
+
 }
 
-repduc<-c(0.6,0.4)
-survive<-c(0.6,0.5)
-comp.mat<-matrix(nrow = length(repduc),ncol = length(survive))
 
-info<-initiate.plants(repduc,survive,comp.mat)
 #' @param cell argument used to determine the given content of a matrix
 #' cell.
-#' @param info argument used provide the information about all 
-#' simulated plant species.
 #' @rdname plant.arr
 #' @export
 survive <- function(cell, info){
   #...some code to check whether cell is empty or has water...
   if(is.na(cell)==TRUE){
     cell<-NA
-  }else{ 
+  }else{
     if(cell==''){
       for(i in sample(length(info$survive))){
       if(runif(1) <= info$survive[i]){
@@ -65,9 +67,9 @@ survive <- function(cell, info){
   }
   return(cell)
 }
-#' @param plants argument to call the 'plants' array in order to be 
+#' @param plants argument to call the 'plants' array in order to be
 #' manipulated.
-#' @param info argument used provide the information about all 
+#' @param info argument used provide the information about all
 #' simulated plant species.
 #' @return the alterations done by plant.timestep
 #' @rdname plant.arr
@@ -78,11 +80,12 @@ plant.timestep <- function(plants, info){
       plants[j,i]<-survive(plants[j,i], info)
     }
   }
-  plants <- reproduce(row, column, plants, info)
+  #if ()
+  #plants <- reproduce(j, i, plants, info)
   return(plants)
 }
-#' @param terra argument to call the terrain matrix 'terra'
-#' @param timesteps amount of 'timesteps' being applied. Gives the 
+#' @param terra An \code{\link{world.dim}} object
+#' @param timesteps amount of 'timesteps' being applied. Gives the
 #' third dimension of the plants array.
 #' @return plants array with simulated species inserted.
 #' @rdname plant.arr
@@ -92,8 +95,9 @@ run.eco<-function(terra, timesteps){
   #...why timesteps+1, do you think?...
   for(i in seq_len(dim(plants)[3]))
     plants[,,i][is.na(terra)] <- NA
-  for(k in seq_len(dim(plants)[3]))
+  for(k in (seq_len(dim(plants)[3]-1)))
     plants[,,k] <- plant.timestep(plants[,,k], info)
+    k<-k+1
 
 
   return(plants)

@@ -8,7 +8,7 @@
 #' @param dim Size of the grid will be 2^dim+1 (e.g. dim=3; 9X9 grid).
 #' @param lakes logical that determines whether or not the negative values
 #'    are made to be NAs aka underwater (default: TRUE).
-#' @param terra argument of the matrix 'terra' that is manipulated by 
+#' @param terra argument of the matrix 'terra' that is manipulated by
 #'    the corresponding functions.
 #' @return a terrain matrix; numeric elements indicate heights, and
 #'    NAs indicate cells filled with water.
@@ -38,9 +38,9 @@ world.dim<-function(dim){
 #' @export
 diamond.step<-function(terra){
   bar<-ceiling(ncol(terra)/2)
-  
+
   x<-mean(terra[c(1,(nrow(terra))),c(1,(ncol(terra)))])+rnorm(1)
-  
+
   terra[bar,bar]<-x
   return(terra)
 }
@@ -50,18 +50,18 @@ diamond.step<-function(terra){
 #' @export
 square.step<-function(terra){
   bar<-ceiling(ncol(terra)/2)
-  
+
   center<-terra[bar,bar]
   ne<-terra[1,1]
   se<-terra[nrow(terra),1]
   sw<-terra[nrow(terra),ncol(terra)]
   nw<-terra[1,ncol(terra)]
-  
+
   e.mean<-mean(c(ne,se,center))+rnorm(1)
   s.mean<-mean(c(se,sw,center))+rnorm(1)
   w.mean<-mean(c(se,nw,center))+rnorm(1)
   n.mean<-mean(c(ne,nw,center))+rnorm(1)
-  
+
   terra[mean(1:nrow(terra)),1]<-e.mean
   terra[max(1:nrow(terra)),mean(1:ncol(terra))]<-s.mean
   terra[mean(1:nrow(terra)),max(ncol(terra))]<-w.mean
@@ -92,6 +92,5 @@ terrain.wrapper<-function(dim, lakes){
     terra[terra<0]<-NA
   }
   return(terra)
-  image(terra)
 }
-terra<-terrain.wrapper(6, TRUE)
+

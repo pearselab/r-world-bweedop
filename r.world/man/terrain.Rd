@@ -23,7 +23,7 @@ terrain.wrapper(dim, lakes)
 \arguments{
 \item{dim}{Size of the grid will be 2^dim+1 (e.g. dim=3; 9X9 grid).}
 
-\item{terra}{argument of the matrix 'terra' that is manipulated by 
+\item{terra}{argument of the matrix 'terra' that is manipulated by
 the corresponding functions.}
 
 \item{lakes}{logical that determines whether or not the negative values
