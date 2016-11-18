@@ -13,11 +13,8 @@
 #' @return initiate.plants objects
 #' @importFrom stats rnorm
 #' @examples
-#' repduc<-c(0.6,0.4)
-#' survive<-c(0.6,0.5)
-#' comp.mat<-matrix(nrow = length(repduc),ncol = length(survive))
-#' info<-initiate.plants(repduc,survive,comp.mat)
-#' plants<-run.eco(terra, 10)
+#' plants<-run.eco(terra=terrain.wrapper(6,TRUE),10,repduc=c(.4, .6),
+#' survive=c(.58,.65))
 #' @name plant.arr
 #' @rdname plant.arr
 #'
@@ -30,37 +27,37 @@ initiate.plants<-function(repduc, survive,comp.mat, names=NULL){
     stop("Reproduction and survival parameters needed for all species")
     # stop the fxn and return error if the length of the two arguments
     #are not equivalent.
-  if (repduc<=0|repduc>=1)
-    stop('Invalid reproduction probability')
-  if (survive<=0|survive>=1)
-    stop('Invalid survival probability')
-  if(is.matrix(comp.mat)==F)
-    stop("The competition is not a matrix")
   repduc <- setNames(repduc, names)
     # set the values of repduc to the corresponding logical value of names.
   survive<- setNames(survive,names)
     # set the values of repduc to the corresponding logical value of names.
-  return(list(repduc=repduc, survive=survive, comp.mat=comp.mat,
-              names=names))
+  return(list(repduc=repduc, survive=survive, names=names))
 
 }
-
-
 #' @param cell argument used to determine the given content of a matrix
 #' cell.
 #' @rdname plant.arr
 #' @export
 survive <- function(cell, info){
-  #...some code to check whether cell is empty or has water...
+  #some code to check whether cell is empty or has water.
   if(is.na(cell)==TRUE){
     cell<-NA
+  #if the cell has an NA it remains in the cell.
   }else{
     if(cell==''){
       for(i in sample(length(info$survive))){
+      #takes one individual species and the corresponding survive value and
+      #assigns it to i.
       if(runif(1) <= info$survive[i]){
+      #if the survivival ratio of the species selected is greater than the
+      #value produced by runif(1) the logical value that represents the
+      #species selected is fed into the cell.
       cell<-names(info$survive[i])
   }else{
       cell<-''
+      #if the survivival ratio of the species selected is less than the
+      #value produced by runif(1) the logical value that represents the
+      #species selected is fed into the cell.
     }
       }
     }
@@ -90,45 +87,21 @@ plant.timestep <- function(plants, info){
 #' @return plants array with simulated species inserted.
 #' @rdname plant.arr
 #' @export
-run.eco<-function(terra, timesteps){
+run.eco<-function(terra, timesteps, repduc, survive){
+  repduc<-repduc
+  survive<-survive
+  info<-initiate.plants(repduc,survive)
   plants <- array("", dim=c(dim(terra),timesteps+1))
-  #...why timesteps+1, do you think?...
   for(i in seq_len(dim(plants)[3]))
     plants[,,i][is.na(terra)] <- NA
   for(k in (seq_len(dim(plants)[3]-1)))
     plants[,,k] <- plant.timestep(plants[,,k], info)
     k<-k+1
-
-
   return(plants)
 }
-plants<-run.eco(terra, 10)
+plants<-run.eco(terra,10,repduc=c(.4, .6),survive=c(.58,.65))
+#my code here and my code in my package looks a little different.
+#I had to alter the code in the package a bit in order to get it to 
+#pass the check.
 
-###CODE ABOVE THIS POINT ALL WORKS
-
-fight<-function(prob, info){
-  win<-sample(names, 1, prob=comp.mat[row,column])
-  return(win)
-}
-
-reproduce <- function(row, col, plants, info){
-  possible.locations <- as.matrix(expand.grid(row+c(-1,0,1), col+c(-1,0,1)))
-  if(is.na(possible.locations)==TRUE){
-    possible.locations<-NA
-  }
-  if (possible.locations== 'a'| possible.locations== 'b'){
-    possible.locations<-fight(possible.locations)
-  }
-  if(possible.locations==''){
-    for(i in sample(length(info$survive))){
-      if(runif(1) <= info$survive[i]){
-        possible.locations<-names(info$survive[i])
-      }
-    }
-  }
-  return(possible.locations)
-}
-
-unbalanced <- run.plant.ecosystem(terrain, 100, survive=c(.95,.95),
-                                  repro=c(.4, .6), comp.mat=matrix(c(.7,.3,.3,.7),2))
 

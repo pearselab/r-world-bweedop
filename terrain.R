@@ -38,9 +38,9 @@ world.dim<-function(dim){
 #' @export
 diamond.step<-function(terra){
   bar<-ceiling(ncol(terra)/2)
-  
+  #finding the middle col
   x<-mean(terra[c(1,(nrow(terra))),c(1,(ncol(terra)))])+rnorm(1)
-  
+  #assigning the mean of the appropriate corners to a variable.
   terra[bar,bar]<-x
   return(terra)
 }
@@ -50,18 +50,19 @@ diamond.step<-function(terra){
 #' @export
 square.step<-function(terra){
   bar<-ceiling(ncol(terra)/2)
-  
+  #finding the middle col
   center<-terra[bar,bar]
   ne<-terra[1,1]
   se<-terra[nrow(terra),1]
   sw<-terra[nrow(terra),ncol(terra)]
   nw<-terra[1,ncol(terra)]
-  
+  #assigning each of the corners and center cells to a variable.
   e.mean<-mean(c(ne,se,center))+rnorm(1)
   s.mean<-mean(c(se,sw,center))+rnorm(1)
   w.mean<-mean(c(se,nw,center))+rnorm(1)
   n.mean<-mean(c(ne,nw,center))+rnorm(1)
-  
+  #assigning the mean of the appropriate corners and center value to a 
+  # variable.
   terra[mean(1:nrow(terra)),1]<-e.mean
   terra[max(1:nrow(terra)),mean(1:ncol(terra))]<-s.mean
   terra[mean(1:nrow(terra)),max(ncol(terra))]<-w.mean
@@ -72,11 +73,17 @@ square.step<-function(terra){
 #' @export
 diamond.square.step <- function(terra){
   x<-as.integer(log2(ncol(terra)))
+  #equation in order to get the original 'dim' value that is put in by the 
+  #user.
   for (i in 2^(x:1)){
+    #i is assigned to each of the values needed for the submatrices.
     for (n.s in seq(1, ncol(terra)-1, by=i)) {
       for (w.e in seq(1, nrow(terra)-1, by=i)) {
         terra[w.e:(w.e+i),n.s:(n.s+i)] <- diamond.step(terra[w.e:(w.e+i),n.s:(n.s+i)])
         terra[w.e:(w.e+i),n.s:(n.s+i)] <- square.step(terra[w.e:(w.e+i),n.s:(n.s+i)])
+        #running the diamond.step and square.step on each submatrix of the 
+        #terrain. Each iteration is fed into the corresponding submatrices of 
+        #the terrain matrix.
       }
     }
   }
@@ -88,9 +95,13 @@ diamond.square.step <- function(terra){
 terrain.wrapper<-function(dim, lakes){
   terra<-world.dim(dim)
   terra<-diamond.square.step(terra)
+  #feeding the world.dim and each iteration of diamond.square.step 
+  #into the terra matrix.
   if(lakes==TRUE){
     terra[terra<0]<-NA
   }
+  #conditional statement that is determined by the user. TRUE if 
+  #bodies of water are wanted. FALSE if not.
   return(terra)
   image(terra)
 }
